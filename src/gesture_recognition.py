@@ -28,29 +28,30 @@ class GestureRecognizer:
         if all(fingers):
             gesture = "Pause"
             
-        # 2. Moving Mode (Only Index up)
-        elif fingers[1] and not fingers[2] and not fingers[3] and not fingers[4]:
+        # 2. Moving Mode (Index UP + Thumb DOWN)
+        elif fingers[1] and not fingers[0] and not fingers[2] and not fingers[3] and not fingers[4]:
             gesture = "Move"
             
-        # 3. Scrolling (Index + Middle up)
+        # 3. Scroll Down (Index + Middle + Ring up)
+        elif fingers[1] and fingers[2] and fingers[3] and not fingers[4]:
+            gesture = "Scroll Down"
+
+        # 4. Scroll Up (Index + Middle up)
         elif fingers[1] and fingers[2] and not fingers[3] and not fingers[4]:
-            gesture = "Scroll"
+            gesture = "Scroll Up"
         
-        # 4. Zoom (Thumb + Index pinch, others down or irrelevant?)
-        # Spec: Thumb + Index pinch -> Zoom
-        # Usually checking if distance is small
-        elif fingers[1] and fingers[0] and pinch_dist < 40:
-             # This might overlap with Move if Thumb is considered "up".
-             # We prioritize Pinch over Move if distance is small.
-             gesture = "Zoom"
+        # 5. Zoom Out (Pinky + Thumb UP - "Shaka")
+        elif fingers[4] and fingers[0] and not fingers[1] and not fingers[2] and not fingers[3]:
+             gesture = "Zoom Out"
+
+        # 6. Zoom In (Pinky UP only)
+        elif fingers[4] and not fingers[0] and not fingers[1] and not fingers[2] and not fingers[3]:
+             gesture = "Zoom In"
              
-        # 5. Click (Fist - All fingers down)
+        # 7. Click (Fist - All fingers down)
         elif not any(fingers):
             gesture = "Click"
             
-        # Refinement for Zoom vs Move:
-        # If in "Move" state but thumb is close to index, it might be a pinch.
-        if gesture == "Move" and pinch_dist < 40:
-            gesture = "Zoom"
+        return gesture, pinch_dist
 
         return gesture, pinch_dist

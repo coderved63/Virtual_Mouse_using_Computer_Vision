@@ -5,17 +5,20 @@ A computer vision project that enables touchless mouse control using hand gestur
 ## Features
 - **Touchless Control**: navigate your computer without a physical mouse.
 - **Gestures**:
-    - **Index Finger**: Move Cursor
-    - **Index + Middle Finger**: Scroll
-    - **Thumb + Index Pinch**: Zoom (or visual feedback)
-    - **Fist**: Click
-    - **Open Palm**: Pause/Resume
+    - **Move Cursor**: Index Finger Up (Thumb must be Down).
+    - **Scroll Up**: Index + Middle Fingers Up.
+    - **Scroll Down**: Index + Middle + Ring Fingers Up.
+    - **Zoom In**: Pinky Finger Up.
+    - **Zoom Out**: Pinky + Thumb Up ("Shaka" sign).
+    - **Click**: Fist (All fingers down).
+    - **Pause/Resume**: Open Palm.
+- **Enhanced Precision**: Adaptive smoothing and deadzone implementation for steady control.
 - **Real-time Performance**: Optimized utilizing MediaPipe for low-latency tracking.
 
 ## System Architecture
 - **Hand Detector**: Wraps MediaPipe Hands to detect 21 3D landmarks.
-- **Gesture Recognizer**: Boolean logic based on finger states and euclidian distances.
-- **Mouse Controller**: Maps camera coordinates to screen pixels with Exponential Moving Average (EMA) smoothing using `pyautogui`.
+- **Gesture Recognizer**: Boolean logic based on finger states to identify gestures.
+- **Mouse Controller**: Maps camera coordinates to screen pixels with Adaptive Smoothing and Deadzone correction using `pyautogui`.
 
 ## Installation
 
@@ -52,9 +55,10 @@ A computer vision project that enables touchless mouse control using hand gestur
 ## Usage
 - Ensure good lighting.
 - Keep your hand within 1-2 meters of the webcam.
-- **Move**: Point with Index finger.
-- **Click**: Make a Fist.
-- **Scroll**: Raise Index and Middle fingers.
+- **Move**: Point with Index finger (keep Thumb tucked in).
+- **Click**: Make a Fist to click.
+- **Scroll**: Use 2 fingers to Scroll Up, 3 fingers to Scroll Down.
+- **Zoom**: Hold Pinky Up to Zoom In, hold Pinky+Thumb (Shaka) to Zoom Out.
 - **Quit**: Press 'q'.
 
 ## Known Limitations

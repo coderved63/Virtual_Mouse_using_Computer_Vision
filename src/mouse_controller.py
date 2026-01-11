@@ -18,27 +18,36 @@ class MouseController:
 
     def move_mouse(self, x, y, frame_shape):
         """
-        Move the mouse to a position mapped from frame coordinates to screen coordinates.
-        x, y: Coordinates in the frame (usually normalized or pixel).
-        frame_shape: (height, width) of the webcame frame.
+        Move the mouse with adaptive smoothing and deadzone.
         """
         h, w = frame_shape[:2]
-        
-        # Frame reduction to avoid reaching the very edge (which is hard)
         frame_r = 100 
         
         # Map coordinates
-        # Invert X because camera is mirrored
-        # But we will handle mirroring in main loop usually. 
-        # If camera is mirrored, x=0 is right side of screen.
-        # Let's map directly:
-        
         x_mapped = np.interp(x, (frame_r, w - frame_r), (0, self.screen_width))
         y_mapped = np.interp(y, (frame_r, h - frame_r), (0, self.screen_height))
         
-        # Smoothing
-        self.clocX = self.plocX + (x_mapped - self.plocX) / self.smoothing
-        self.clocY = self.plocY + (y_mapped - self.plocY) / self.smoothing
+        # Calculate distance from previous location
+        dist = np.sqrt((x_mapped - self.plocX)**2 + (y_mapped - self.plocY)**2)
+
+        # Deadzone: Ignore very small movements (jitter)
+        # If movement is < 2 pixels, don't update
+        if dist < 2:
+            return 
+
+        # Adaptive Smoothing
+        # If moving fast (large dist), lower smoothing (more responsive)
+        # If moving slow (small dist), higher smoothing (more precision)
+        # Base smoothing is self.smoothing (e.g., 5)
+        
+        current_smoothing = self.smoothing
+        if dist > 100:
+            current_smoothing = max(1, self.smoothing / 2) # Faster response
+        elif dist < 20: 
+            current_smoothing = self.smoothing * 1.5 # More precision
+            
+        self.clocX = self.plocX + (x_mapped - self.plocX) / current_smoothing
+        self.clocY = self.plocY + (y_mapped - self.plocY) / current_smoothing
         
         try:
             pyautogui.moveTo(self.clocX, self.clocY)
@@ -59,6 +68,15 @@ class MouseController:
         """
         pyautogui.click(button=button)
         
+    def zoom(self, steps):
+        """
+        Zoom in or out using Ctrl + Scroll.
+        steps: Positive for Zoom In, Negative for Zoom Out.
+        """
+        pyautogui.keyDown('ctrl')
+        pyautogui.scroll(steps)
+        pyautogui.keyUp('ctrl')
+
     def drag(self, x, y, frame_shape):
         """
         Drag operation.

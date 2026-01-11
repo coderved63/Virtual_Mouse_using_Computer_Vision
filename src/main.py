@@ -58,43 +58,26 @@ def main():
                 frame_r = 100
                 cv2.rectangle(img, (frame_r, frame_r), (wCam - frame_r, hCam - frame_r), (255, 0, 255), 2)
                 
-            elif gesture == "Scroll":
-                # Scroll up/down based on hand position or movement?
-                # Spec says "Scroll". Usually mapped to relative encoded movement.
-                # Let's map Y position to scroll speed or just simple scroll.
-                # Simple implementation: Scroll based on vertical movement or position?
-                # Let's try: if hand is in top half, scroll up; bottom half, scroll down.
-                # Or just continuous scroll if gesture is held (simpler).
-                # Re-reading spec: "Scroll up/down".
-                # Let's use position relative to center.
-                if y1 < hCam // 2 - 50:
-                    controller.scroll(20) # Up
-                    cv2.putText(img, "Scroll UP", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
-                elif y1 > hCam // 2 + 50:
-                    controller.scroll(-20) # Down
-                    cv2.putText(img, "Scroll DOWN", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
-                    
-            elif gesture == "Zoom":
-                # Pinch implies Zoom.
-                # Depending on change in distance, we could zoom in/out.
-                # Spec says: "Thumb + index pinch -> Zoom".
-                # Simplify: Pinch = Zoom In? Or just 'Zoom' mode?
-                # Let's implementation: Hold pinch to Zoom In (Ctrl + +)?
-                # Or mapping distance to zoom level.
-                # For simplicity: Pinch (< 40) is Zoom In.
-                # We need a Zoom Out too.
-                # Spec: "Zoom in / zoom out".
-                # Maybe pinch in/out? Hard to track previous frame pinch without state.
-                # Let's just key bind: Pinch -> Ctrl + Scroll?
-                # Or PyAutoGUI doesn't support 'zoom' directly without hotkeys.
-                # Let's assume standard Ctrl+Scroll.
-                # If Pinch is tight -> Zoom In.
-                # This part is tricky without state.
-                # We will just note it on screen for now or send Hotkey.
-                cv2.putText(img, f"Pinch: {int(pinch_dist)}", (20, 130), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
-                # controller.mouse_zoom(...) - PyAutoGUI doesn't have direct zoom.
-                # We can do: pyautogui.keyDown('ctrl'), pyautogui.scroll(...), keyUp
+            elif gesture == "Scroll Up":
+                # 2 Fingers UP -> Scroll Page UP
+                controller.scroll(30)
+                cv2.putText(img, "Scroll UP", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
                 
+            elif gesture == "Scroll Down":
+                # 3 Fingers UP -> Scroll Page DOWN
+                controller.scroll(-30)
+                cv2.putText(img, "Scroll DOWN", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+                    
+            elif gesture == "Zoom In":
+                # Pinky UP only -> Zoom In
+                controller.zoom(20)
+                cv2.putText(img, "Zoom IN", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
+                
+            elif gesture == "Zoom Out":
+                # Pinky + Thumb UP -> Zoom Out
+                controller.zoom(-20)
+                cv2.putText(img, "Zoom OUT", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
+
             elif gesture == "Click":
                 # Fist -> Click
                 # Need cooldown to prevent spam
