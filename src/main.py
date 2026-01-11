@@ -21,6 +21,9 @@ def main():
     
     print("Starting Virtual Mouse...")
     
+    active_scroll_mode = None
+
+    
     while True:
         # 2. Get image
         success, img = cap.read()
@@ -59,14 +62,15 @@ def main():
                 cv2.rectangle(img, (frame_r, frame_r), (wCam - frame_r, hCam - frame_r), (255, 0, 255), 2)
                 
             elif gesture == "Scroll Up":
-                # 2 Fingers UP -> Scroll Page UP
-                controller.scroll(30)
-                cv2.putText(img, "Scroll UP", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+                # 2 Fingers UP -> Activate Scroll Page UP
+                active_scroll_mode = "UP"
                 
             elif gesture == "Scroll Down":
-                # 3 Fingers UP -> Scroll Page DOWN
-                controller.scroll(-30)
-                cv2.putText(img, "Scroll DOWN", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+                # 3 Fingers UP -> Activate Scroll Page DOWN
+                active_scroll_mode = "DOWN"
+            
+            elif gesture == "Pause":
+                active_scroll_mode = None
                     
             elif gesture == "Zoom In":
                 # Pinky UP only -> Zoom In
@@ -87,6 +91,15 @@ def main():
                 controller.click()
                 cv2.putText(img, "Click", (x1, y1), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
                 time.sleep(0.2) # Simple debounce
+
+        # Continuous Scroll Execution
+        if active_scroll_mode == "UP":
+            controller.scroll(30)
+            cv2.putText(img, "Auto Scroll UP", (20, 150), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 2)
+        elif active_scroll_mode == "DOWN":
+            controller.scroll(-30)
+            cv2.putText(img, "Auto Scroll DOWN", (20, 150), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 2)
+
 
         # 7. FPS & UI
         cTime = time.time()
